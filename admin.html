@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>অ্যাডমিন প্যানেল</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --g: #13306b; --g2: #1d4a9e; --gd: #0a1a3f; --gold: #ffc727; --ink: #0e1a33; --mut: #6b7590; --line: #e1e5ef; --bg: #f4f6fa; --red: #c93c3c; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Hind Siliguri", system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; }
+    button { font: inherit; cursor: pointer; }
+    input, textarea, select { font: inherit; }
+    h1, h2, h3 { margin: 0; line-height: 1.3; }
+
+    /* লগইন */
+    .login { min-height: 100vh; display: grid; place-items: center; padding: 16px; background: var(--gd); }
+    .login form { width: min(380px, 100%); background: #fff; border-radius: 20px; padding: 28px 22px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.5); }
+    .login h1 { font-size: 24px; text-align: center; margin-bottom: 4px; }
+    .login p { text-align: center; color: var(--mut); margin: 0 0 18px; }
+
+    /* উপরের বার */
+    .top { position: sticky; top: 0; z-index: 20; background: var(--gd); color: #fff; box-shadow: 0 6px 20px -10px rgba(0,0,0,.5); }
+    .top .in { display: flex; align-items: center; gap: 10px; padding: 10px 16px; max-width: 1280px; margin: 0 auto; flex-wrap: wrap; }
+    .top h1 { font-size: 18px; margin-right: auto; }
+    .top .in { max-width: none; padding: 10px 20px; min-height: 58px; }
+    .dirty { font-size: 13px; color: var(--gold); }
+    .menu-btn { display: none; width: 40px; height: 40px; border: 0; border-radius: 10px; background: rgba(255,255,255,.1); color: #fff; place-items: center; }
+    .menu-btn svg { width: 22px; height: 22px; }
+
+    /* সাইডবার + কন্টেন্ট */
+    .shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+    .side { position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; background: #fff; border-right: 1px solid var(--line); padding: 8px 12px 110px; scrollbar-width: thin; }
+    .side-g { margin: 18px 12px 6px; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--mut); }
+    .side a { display: flex; align-items: center; gap: 11px; padding: 9px 12px; margin-bottom: 2px; border-radius: 11px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; transition: background .2s, color .2s; }
+    .side a .ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: #eef2fa; color: var(--g); transition: background .2s, color .2s; }
+    .side a .ic svg { width: 17px; height: 17px; }
+    .side a .lb { flex: 1; min-width: 0; }
+    .side a:hover { background: #f1f4fb; }
+    .side a.on { background: var(--gd); color: #fff; box-shadow: 0 8px 18px -10px rgba(10,26,63,.7); }
+    .side a.on .ic { background: var(--gold); color: var(--gd); }
+    .cnt:empty { display: none; }
+    .cnt { min-width: 22px; padding: 0 7px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-weight: 700; text-align: center; line-height: 22px; }
+    .scrim { display: none; }
+    /* অন/অফ সুইচ */
+    .switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px 14px; border-radius: 12px; background: #f4f6fb; border: 1px solid var(--line); }
+    .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .switch .sw { position: relative; width: 46px; height: 26px; border-radius: 999px; background: #c5cde0; transition: background .2s; flex: none; }
+    .switch .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s; }
+    .switch input:checked + .sw { background: #1fb85a; }
+    .switch input:checked + .sw::after { transform: translateX(20px); }
+    .switch input:focus-visible + .sw { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+    main { max-width: 1100px; width: 100%; padding: 22px 24px 120px; }
+    main .card { display: none; }
+    main .card.act { display: block; animation: secIn .25s ease; }
+    @keyframes secIn { from { opacity: 0; transform: translateY(8px); } }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 18px; scroll-margin-top: 80px; }
+
+    @media (max-width: 899px) {
+      .menu-btn { display: grid; }
+      .shell { grid-template-columns: minmax(0, 1fr); }
+      .side { position: fixed; z-index: 50; top: 0; left: 0; bottom: 0; height: auto; width: min(290px, 86vw); transform: translateX(-105%); transition: transform .3s ease; box-shadow: 20px 0 40px -20px rgba(0,0,0,.4); padding-top: 14px; }
+      .side-open .side { transform: none; }
+      .side-open .scrim { display: block; position: fixed; inset: 0; z-index: 45; background: rgba(5,13,36,.5); }
+      main { padding: 16px 12px 120px; }
+    }
+    .card > h2 { font-size: 20px; margin-bottom: 4px; }
+    .card > .help { color: var(--mut); margin: 0 0 14px; font-size: 14px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    label.fl { display: block; font-weight: 600; font-size: 14px; color: #3a4766; }
+    label.fl input, label.fl textarea, label.fl select, .inp {
+      display: block; width: 100%; margin-top: 4px; padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 10px; background: #fbfcfe; color: var(--ink);
+    }
+    label.fl textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
+    label.fl input:focus, label.fl textarea:focus, .inp:focus { outline: 0; border-color: var(--g2); background: #fff; }
+    .sub { color: var(--mut); font-weight: 400; font-size: 13px; }
+    .stack > * + * { margin-top: 12px; }
+
+    .btn { border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 700; background: #eef2fa; color: var(--gd); }
+    .btn.p { background: var(--gold); color: #2b1d00; }
+    .btn.g { background: var(--g); color: #fff; }
+    .btn.r { background: #fbe9e9; color: var(--red); }
+    .btn.sm { padding: 5px 10px; font-size: 13px; border-radius: 8px; }
+    .btn:disabled { opacity: .5; cursor: default; }
+    .btn.big { padding: 12px 22px; font-size: 16px; }
+
+    /* লিস্ট এডিটর */
+    .item { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: #fbfcfe; position: relative; }
+    .item + .item { margin-top: 12px; }
+    .item-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .item-head b { margin-right: auto; color: var(--g); }
+    .add { margin-top: 12px; width: 100%; border: 2px dashed #c5d0e6; background: transparent; color: var(--g); padding: 10px; border-radius: 12px; font-weight: 700; }
+    .add:hover { background: #eef2fb; }
+
+    /* ছবি */
+    .imgf { display: flex; gap: 12px; align-items: flex-start; }
+    .imgf .thumb { flex: none; width: 96px; height: 96px; border-radius: 12px; background: #e9ecf3; display: grid; place-items: center; overflow: hidden; color: var(--mut); font-size: 12px; text-align: center; }
+    .imgf .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .imgf .ctl { flex: 1; min-width: 0; }
+    .imgf .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .yt-prev { margin-top: 8px; display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--mut); }
+    .yt-prev img { width: 120px; border-radius: 8px; }
+    .bad { color: var(--red); }
+
+    /* ভর্তির তালিকা */
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .tools .inp { width: auto; flex: 1 1 200px; margin: 0; }
+    .tools select.inp { flex: 0 1 160px; }
+    .counts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .counts span { background: #eef2fa; border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+    .tbl-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; max-height: 70vh; }
+    table { border-collapse: collapse; width: 100%; min-width: 1100px; font-size: 14px; user-select: text; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: #eef1f7; z-index: 1; white-space: nowrap; font-weight: 700; }
+    tr.sel td { background: #fff8e3; }
+    td.nowrap { white-space: nowrap; }
+    td a { color: var(--g); font-weight: 600; }
+    .st { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .st.new { background: #fff1c9; color: #7a5600; }
+    .st.confirmed { background: #dbe5fa; color: #13306b; }
+    .st.cancelled { background: #f7dddd; color: var(--red); }
+    .alltext { width: 100%; min-height: 220px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; padding: 10px; border: 1.5px solid var(--line); border-radius: 12px; background: #fbfcfe; white-space: pre; }
+    .empty { text-align: center; color: var(--mut); padding: 30px; }
+
+    .savebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -8px 24px -12px rgba(0,0,0,.2); }
+    .savebar .in { max-width: 1280px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .savebar .msg { margin-right: auto; font-weight: 600; }
+    .toast { position: fixed; left: 50%; top: 20px; translate: -50% 0; z-index: 99; background: var(--gd); color: #fff; padding: 10px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); font-weight: 600; transition: opacity .3s; }
+    .toast.err { background: var(--red); }
+
+    @media (max-width: 720px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .top h1 { font-size: 16px; }
+      .card { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
